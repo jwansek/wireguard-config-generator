@@ -3,20 +3,24 @@
 
 # public network interface
 # usually the same, unless using tunnel
-IPV4_INTERFACE=
+echo -n "Server public IP: "
+read IPV4_INTERFACE
 
 # name for the wireguard interface
 WG_INTERFACE=wg0
 
 # the server's domain name or ip address
-WG_SERVER_ADDRESS=
+echo -n "Server DNS (optional): "
+read WG_SERVER_ADDRESS
 
 # number of client configs to generate
 # must < 254
-WG_CLIENT_NO=3
+echo -n "Number of clients (maximum 254): "
+read WG_CLIENT_NO
 
 # DNS server for clients
-DNS=1.1.1.1
+echo -n "Client DNS: "
+read DNS
 
 
 # remove previously generated configs and make room for new ones
@@ -25,7 +29,7 @@ mkdir wgconfigs
 
 echo generating server config
 # generate the [Interface] part for the server
-WG_IPV4_PREFIX=10.13.37
+WG_IPV4_PREFIX=10.13.37.
 WG_SERVER_PORT=51820
 
 WG_SERVER_PRIVATE_KEY=$(wg genkey)
