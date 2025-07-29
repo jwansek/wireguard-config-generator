@@ -10,7 +10,7 @@ read IPV4_INTERFACE
 WG_INTERFACE=wg0
 
 # the server's domain name or ip address
-echo -n "Server DNS (optional): "
+echo -n "Server domain name (optional): "
 read WG_SERVER_ADDRESS
 
 # number of client configs to generate
@@ -22,6 +22,8 @@ read WG_CLIENT_NO
 echo -n "Client DNS: "
 read DNS
 
+echo -n "Main interface name (e.g. eth0): "
+read INTERFACE_NAME
 
 # remove previously generated configs and make room for new ones
 rm -vrf wgconfigs
@@ -40,6 +42,9 @@ cat > wgconfigs/${WG_INTERFACE}.conf << EOF
 Address = ${WG_IPV4_PREFIX}1/24
 ListenPort = ${WG_SERVER_PORT}
 PrivateKey = ${WG_SERVER_PRIVATE_KEY}
+SaveConfig = true
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${INTERFACE_NAME} -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${INTERFACE_NAME} -j MASQUERADE
 EOF
 
 # generate client configs
@@ -47,7 +52,7 @@ CLIENT_IP_SUFFIX=2
 mkdir -p wgconfigs/clientconfigs
 while [ $CLIENT_IP_SUFFIX -le $[$WG_CLIENT_NO+1] ]
 do
-echo generating client config w/ IP ${WG_IPV4_PREFIX}${CLIENT_IP_SUFFIX}
+echo Generating client config with IP ${WG_IPV4_PREFIX}${CLIENT_IP_SUFFIX}
 
 WG_CLIENT_PRIVATE_KEY=$(wg genkey)
 WG_CLIENT_PUBLIC_KEY=$(echo "$WG_CLIENT_PRIVATE_KEY" | wg pubkey)
